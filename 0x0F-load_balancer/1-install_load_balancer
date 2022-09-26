@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Installs HAProxy version 1.8 with the following configurations:
-#+    Enables management via the init script.
-#+    Distributes requests using a round-robin algorithm.
+# Installs and setup haproxy
 
-apt-get update
-apt-get install -y haproxy
+apt-get install -y software-properties-common
+add-apt-repository -y ppa:vbernat/haproxy-1.8
+apt-get -y update
+apt-get install -y haproxy=1.8.\*
 
-printf %s "
+echo "ENABLED=1" > /etc/default/haproxy
+
+# Listen to web1 and web2 servers
+iprintf %s "
 frontend hbnb-lb_front
         bind *:80
         mode http
