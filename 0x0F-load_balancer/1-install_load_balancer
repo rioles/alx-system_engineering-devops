@@ -13,8 +13,8 @@ iprintf %s "
 frontend hbnb-lb_front
         bind *:80
         mode http
-        default_backend hbnb-lb_back
-backend hbnb-lb_back
+        default_backend 28967-lb-01
+backend 28967-lb-01
         balance roundrobin
         server 28967-web-01 3.238.25.24:80 check
         server 28967-web-02 44.200.81.25:80 check
