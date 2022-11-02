@@ -33,4 +33,3 @@ def titles(hot_list, length, titles_list=[]):
         return titles_list
     titles_list.append(hot_list[length - 1]["data"]["title"])
     return titles(hot_list, length - 1, titles_list)
-    
