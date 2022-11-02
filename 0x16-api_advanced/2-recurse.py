@@ -1,29 +1,36 @@
 #!/usr/bin/python3
+"""
+Querying the Reddit API recursively
+"""
 import requests
 
 
-def recurse(subreddit, hot_list=[], after="", count=0):
-    """Returns a list of titles of all hot posts on a given subreddit."""
-    url = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
-    headers = {
-        "User-Agent": "linux:0x16.api.advanced"
-    }
-    params = {
-        "after": after,
-        "count": count,
-        "limit": 100
-    }
-    response = requests.get(url, headers=headers, params=params,
-                            allow_redirects=False)
-    if response.status_code == 404:
+def recurse(subreddit, hot_list=[], after=None):
+    if type(subreddit) is not str:
         return None
-
-    results = response.json().get("data")
-    after = results.get("after")
-    count += results.get("dist")
-    for c in results.get("children"):
-        hot_list.append(c.get("data").get("title"))
-
-    if after is not None:
-        return recurse(subreddit, hot_list, after, count)
+    sub = subreddit
+    url = "https://api.reddit.com/r/{}/hot?after={}".format(sub, after)
+    headers = {"User-Agent": "linux:0x16.api.advanced"}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        hot_posts = response.json()["data"]["children"]
+        after = response.json()["data"]["after"]
+        if after is None:
+            hot_list = titles(hot_posts, len(hot_posts))
+            return hot_list
+        hot_list.append(recurse(subreddit, hot_list, after=after))
+        hot_list = titles(hot_posts, len(hot_posts))
+    else:
+        return None
     return hot_list
+
+
+def titles(hot_list, length, titles_list=[]):
+    """
+    Gets titles of posts from the data
+    """
+    if length == 0:
+        return titles_list
+    titles_list.append(hot_list[length - 1]["data"]["title"])
+    return titles(hot_list, length - 1, titles_list)
+    
